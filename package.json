@@ -1,0 +1,27 @@
+{
+  "name": "random",
+  "version": "1.0.0",
+  "description": "dependencies for 'random'",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leopoldleopold/random.git"
+  },
+  "author": "Justin L. Acosta",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/leopoldleopold/random/issues"
+  },
+  "homepage": "https://github.com/leopoldleopold/random#readme",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "cheerio": "^1.0.0-rc.3",
+    "express": "^4.17.1",
+    "handlebars": "^4.7.6",
+    "moment": "^2.24.0",
+    "mongoose": "^5.9.10"
+  }
+}
