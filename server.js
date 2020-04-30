@@ -1,9 +1,12 @@
 var express = require("express");
 var cheerio = require("cheerio");
 var axios = require("axios");
+var mongoose = require("mongoose");
+// grab model for schema
+var Article = require("./models/Article.js");
+
 // var exphbs = require("express-handlebars");
 // var moment = require("moment");
-// var mongoose = require("mongoose");
 var app = express();
 var PORT = process.env.PORT || 8080;
 
