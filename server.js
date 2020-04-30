@@ -3,7 +3,7 @@ var cheerio = require("cheerio");
 var axios = require("axios");
 var mongoose = require("mongoose");
 // grab model for schema
-var Article = require("./models/Article.js");
+var db = require("./models")
 
 // var exphbs = require("express-handlebars");
 // var moment = require("moment");
@@ -17,43 +17,88 @@ var PORT = process.env.PORT || 8080;
 // }));
 // app.set("view engine", "handlebars");
 
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // movie reviews
-axios.get("https://www.rogerebert.com/reviews").then(function(response) {
+axios.get("https://www.rogerebert.com/reviews").then(function (response) {
+  let $ = cheerio.load(response.data);
+  // array to store article objects
+  let array = [];
+  $(".review-stack").each(function (i, element) {
+    var result = {};
 
-  var $ = cheerio.load(response.data);
+    result.title = $(element).children().text().split("\n").join("");
+    result.img = $(element).find("img").attr("src");
+    result.link = $(element).find("a").attr("href");
+    array.push(result);
 
-  var results = [];
+    db.Article.create(result)
+      .then(function (dbArticle) {
+        console.log(dbArticle);
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
 
-  $(".review-stack").each(function(i, element) {
-    var title = $(element).children().text().split("\n").join("");
-    var img = $(element).find("img").attr("src");
-    var link = $(element).find("a").attr("href");
+    if (array.length === 15) {
+      console.log(array);
+      console.log("that worked");
+      getGame();
+    }
+  });
+});
 
-    results.push({
-      img: img,
-      title: title,
-      link: link
+// game reviews
+function getGame() {
+  axios.get("https://www.ign.com/reviews/games").then(function (response) {
+    var $ = cheerio.load(response.data);
+    let array = [];
+    $("article").each(function (i, element) {
+      let result = {};
+
+      result.title = $(element).find("img").attr("alt");
+      result.link = $(element).find("a").attr("href");
+      result.img = $(element).find("img").attr("src");
+      array.push(result);
+
+      db.Article.create(result)
+      .then(function (dbArticle) {
+        console.log(dbArticle);
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+
+    if (array.length === 10) {
+      console.log("that worked");
+      getMusic();
+    }
     });
   });
+}
 
-  console.log(results);
-});
-// game reviews
-axios.get("https://www.ign.com/reviews/games").then(function(response) {
+// music reviews
+function getMusic() {
+  axios.get("https://pitchfork.com/reviews/albums/").then(function(response) {
   var $ = cheerio.load(response.data);
+  let array = [];
+  $(".review").each(function(i, element) {
+    let result = {};
 
-  $("article").each(function(i, element) {
-    var title = $(element).find("img").attr("alt");
-    var link = $(element).find("a").attr("href");
-    var img = $(element).find("img").attr("src");
-    console.log(title, link, img);
+    var album = $(element).find("h2").text().split("\n").join("");
+    console.log(album);
+    var artist = $(element).find("ul li:first").text().split("\n").join("");
+    console.log(artist);
+    result.title = "'" + album +"'" + " by " + artist;
+    result.link = $(element).find("a").attr("href");
+    result.img = $(element).find("img").attr("src");
+    array.push(result);
+    // console.log(array);
   });
+  });
+}
 
-});
-app.listen(PORT, function() {
+app.listen(PORT, function () {
   console.log("Listening on " + PORT);
 });
-
